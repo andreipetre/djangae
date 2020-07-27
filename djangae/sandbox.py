@@ -26,6 +26,8 @@ STORAGE_PORT = 10911
 DEFAULT_PROJECT_ID = "example"
 DEFAULT_BUCKET = "%s.appspot.com" % DEFAULT_PROJECT_ID
 
+logger = logging.getLogger(__name__)
+
 
 def _launch_process(command_line):
     env = os.environ.copy()
@@ -45,7 +47,7 @@ def _wait_for_storage(port):
 
 
 def _wait(port, service):
-    print("Waiting for %s..." % service)
+    logger.info("Waiting for %s..." % service)
 
     TIMEOUT = 60.0
     start = datetime.now()
@@ -61,7 +63,7 @@ def _wait(port, service):
             time.sleep(1)
             if failures > 5:
                 # Only start logging if this becomes persistent
-                logging.exception("Error connecting to the %s. Retrying..." % service)
+                logger.exception("Error connecting to the %s. Retrying..." % service)
             continue
 
         if response.status == 200:
@@ -143,8 +145,7 @@ def start_emulators(persist_data, emulators=None, storage_dir=None, task_target_
 
 
 def stop_emulators(emulators=None):
-    # This prevents restarting of the emulators when Django code reload
-    # kicks in
+    # This prevents restarting of the emulators when Django code reload kicks in
     if os.environ.get(DJANGO_AUTORELOAD_ENV) == 'true':
         return
 
